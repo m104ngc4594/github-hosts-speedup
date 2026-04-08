@@ -11,6 +11,7 @@ DOMAINS=(
     "githubusercontent.com"
     "raw.githubusercontent.com"
     "user-images.githubusercontent.com"
+    "gist.github.com"
 )
 
 # 解析单个域名的 IP（先 ping，失败则 dig）
