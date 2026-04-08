@@ -33,8 +33,24 @@ BACKUP="/etc/hosts.backup.$(date +%Y%m%d%H%M%S)"
 echo "Backing up /etc/hosts to $BACKUP"
 sudo cp /etc/hosts "$BACKUP"
 
-# 创建临时文件，先复制原 hosts 并去除已有的目标域名条目
+# 创建临时文件
 TEMP_FILE=$(mktemp)
+
+# 添加标准的 hosts 文件头部
+cat >> "$TEMP_FILE" << 'EOF'
+##
+# Host Database
+#
+# localhost is used to configure the loopback interface
+# when the system is booting.  Do not change this entry.
+##
+127.0.0.1       localhost
+255.255.255.255 broadcasthost
+::1             localhost
+
+EOF
+
+# 复制原 hosts 并去除已有的目标域名条目
 while IFS= read -r line; do
     skip=0
     for domain in "${DOMAINS[@]}"; do
@@ -46,7 +62,7 @@ while IFS= read -r line; do
     if [[ $skip -eq 0 ]]; then
         echo "$line"
     fi
-done < /etc/hosts > "$TEMP_FILE"
+done < /etc/hosts >> "$TEMP_FILE"
 
 # 为每个域名解析 IP 并追加到临时文件
 for domain in "${DOMAINS[@]}"; do
